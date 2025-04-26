@@ -1,12 +1,56 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CountryListComponent } from "../../components/country-list/country-list.component";
+import { Region } from '../../interfaces/region.interface';
+import { CountryService } from '../../services/country.service';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { of } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+
+function validateQueryParam(queryParam:string):Region {
+  queryParam = queryParam.toLowerCase();
+  const validRegions: Record<string, Region> = {
+    'africa':'Africa',
+    'americas':'Americas',
+    'asia':'Asia',
+    'europe':'Europe',
+    'oceania':'Oceania',
+    'antarctic':'Antarctic',
+  }
+  return validRegions[queryParam]??'Americas'
+}
 
 @Component({
   selector: 'app-by-region',
   imports: [CountryListComponent],
-  templateUrl: './by-region.component.html',
-  styleUrl: './by-region.component.css'
+  templateUrl: './by-region.component.html'
 })
 export class ByRegionComponent {
+  public btnActive:string = '';
+  public regions: Region[] = [
+    'Africa',
+    'Americas',
+    'Asia',
+    'Europe',
+    'Oceania',
+    'Antarctic',
+  ];
+  countryService = inject(CountryService);
+  activeRoute = inject(ActivatedRoute);
+  router = inject(Router);
+  queryParam = this.activeRoute.snapshot.queryParamMap.get('region')??'';
 
+  query = signal<Region>(validateQueryParam(this.queryParam));
+
+  countryResource = rxResource({
+    request:() => ({region:this.query()}),
+    loader:({request}) => {
+      if(!request.region) return of([]);
+      this.router.navigate(['/country/by-region'],{
+        queryParams:{
+          region:this.query()
+        }
+      })
+      return this.countryService.searchByRegion(request.region);
+    }
+  })
 }
