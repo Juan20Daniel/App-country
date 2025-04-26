@@ -4,8 +4,6 @@
     class="input input-bordered mr-2 w-56"
     [placeholder]="placeholder()"
     (keyup.enter)="search.emit(txtValue.value)"
-    (keyup)="inputValue.set(txtValue.value)"
-    [value]="inputValue()"
     #txtValue
     autofocus
   />

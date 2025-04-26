@@ -1,8 +1,6 @@
 <country-search
   (search)="query.set($event)"
   placeholder="Buscar por capita"
-  [debounceTime]="1000"
-  [initialValue]="query()"
 />
 
 <country-list
@@ -10,5 +8,5 @@
   [isEmpty]="countryResource.value()?.length === 0"
   [isLoading]="countryResource.isLoading()"
   [countries]="countryResource.value()??[]"
-/>
+  />
 
